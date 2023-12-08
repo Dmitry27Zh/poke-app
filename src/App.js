@@ -11,12 +11,21 @@ function App() {
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     setLoading(true)
-    axios.get(currentPageUrl).then((res) => {
-      setLoading(false)
-      setNextPageUrl(nextPageUrl)
-      setPrevPageUrl(prevPageUrl)
-      setPokemon(res.data.results.map((p) => p.name))
-    })
+    const controller = new AbortController()
+    axios
+      .get(currentPageUrl, {
+        signal: controller.signal,
+      })
+      .then((res) => {
+        setLoading(false)
+        setNextPageUrl(nextPageUrl)
+        setPrevPageUrl(prevPageUrl)
+        setPokemon(res.data.results.map((p) => p.name))
+      })
+
+    return () => {
+      controller.abort()
+    }
   }, [currentPageUrl])
 
   if (loading) {
